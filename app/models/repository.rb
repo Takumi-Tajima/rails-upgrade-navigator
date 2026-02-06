@@ -1,6 +1,15 @@
 class Repository < ApplicationRecord
   extend Enumerize
 
+  RAILS_VERSIONS = %w[
+    6.0.0 6.0.1 6.0.2 6.0.3 6.0.4 6.0.5 6.0.6
+    6.1.0 6.1.1 6.1.2 6.1.3 6.1.4 6.1.5 6.1.6 6.1.7
+    7.0.0 7.0.1 7.0.2 7.0.3 7.0.4 7.0.5 7.0.6 7.0.7 7.0.8
+    7.1.0 7.1.1 7.1.2 7.1.3 7.1.4 7.1.5
+    7.2.0 7.2.1 7.2.2
+    8.0.0 8.0.1 8.0.2
+  ].freeze
+
   has_many :gem_reports, dependent: :destroy
 
   enumerize :status, in: { pending: 0, analyzing: 1, completed: 2, failed: 3 }, default: :pending, scope: true
@@ -17,6 +26,15 @@ class Repository < ApplicationRecord
 
   def full_name
     url&.match(%r{\Ahttps://github\.com/(?<full>[^/]+/[^/]+)\z})&.[](:full)
+  end
+
+  def available_target_versions
+    return [] if current_rails_version.blank?
+
+    current = Gem::Version.new(current_rails_version)
+    RAILS_VERSIONS.select { |v| Gem::Version.new(v) > current }
+  rescue ArgumentError
+    []
   end
 
   def fetch_gemfile_lock

@@ -24,9 +24,22 @@
 
   - else
     - if @repository.current_rails_version.present?
-      %section.mb-8.p-4.bg-gray-50.rounded-lg
+      %section.mb-8.p-4.bg-gray-50.rounded-lg{ data: { controller: 'rails-upgrade', rails_upgrade_current_version_value: @repository.current_rails_version } }
         %h2.text-xl.font-semibold.mb-2 Rails バージョン
-        %p.font-mono= @repository.current_rails_version
+        .flex.items-center.gap-4.mb-4
+          %p.font-mono= @repository.current_rails_version
+          %span.text-gray-500 →
+          = select_tag :target_rails_version, options_for_select([['アップグレード先を選択', '']] + @repository.available_target_versions.map { |v| [v, v] }), class: 'border rounded px-2 py-1', data: { rails_upgrade_target: 'select', action: 'change->rails-upgrade#updateLinks' }
+
+        .mt-4.hidden{ data: { rails_upgrade_target: 'links' } }
+          %h3.font-semibold.mb-2 アップグレード参考リンク
+          %ul.space-y-2
+            %li
+              %span.text-gray-600 Railsdiff:
+              = link_to '', '', target: '_blank', class: 'text-blue-600 hover:underline ml-2', data: { rails_upgrade_target: 'railsdiffLink' }
+            %li
+              %span.text-gray-600 Railsアップグレードガイド:
+              = link_to 'https://guides.rubyonrails.org/upgrading_ruby_on_rails.html', 'https://guides.rubyonrails.org/upgrading_ruby_on_rails.html', target: '_blank', class: 'text-blue-600 hover:underline ml-2'
 
     %section
       %h2.text-xl.font-semibold.mb-4 Gem差分一覧
