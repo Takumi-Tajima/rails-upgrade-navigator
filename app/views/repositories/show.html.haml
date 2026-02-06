@@ -7,39 +7,55 @@
       %p.text-sm.text-gray-500.mt-2
         解析日時: #{l(@repository.analyzed_at, format: :long)}
 
-  - if @repository.current_rails_version.present?
-    %section.mb-8.p-4.bg-gray-50.rounded-lg
-      %h2.text-xl.font-semibold.mb-2 Rails バージョン
-      %p.font-mono= @repository.current_rails_version
+  - if @repository.status.pending? || @repository.status.analyzing?
+    %section.mb-8.p-4.bg-blue-50.rounded-lg{ data: { controller: 'reload', reload_interval_value: 3000 } }
+      %h2.text-xl.font-semibold.mb-2.text-blue-800 解析中...
+      %p.text-blue-600
+        Gemfile.lockを解析しています。しばらくお待ちください。
+      .mt-4
+        .animate-pulse.flex.space-x-4
+          .h-2.bg-blue-400.rounded.w-full
 
-  %section
-    %h2.text-xl.font-semibold.mb-4 Gem差分一覧
+  - elsif @repository.status.failed?
+    %section.mb-8.p-4.bg-red-50.rounded-lg
+      %h2.text-xl.font-semibold.mb-2.text-red-800 解析に失敗しました
+      %p.text-red-600
+        解析中にエラーが発生しました。リポジトリのURLを確認してください。
 
-    - if @repository.gem_reports.any?
-      %table.w-full.border-collapse
-        %thead.bg-gray-100
-          %tr
-            %th.px-4.py-2.text-left gem名
-            %th.px-4.py-2.text-left 現バージョン
-            %th.px-4.py-2.text-left 最新バージョン
-            %th.px-4.py-2.text-left 差分
-            %th.px-4.py-2.text-left リンク
-        %tbody
-          - @repository.gem_reports.default_order.each do |gem_report|
-            %tr.border-b
-              %td.px-4.py-2.font-mono
-                = link_to gem_report.name, [@repository, gem_report], class: 'text-blue-600 hover:underline'
-              %td.px-4.py-2.font-mono= gem_report.current_version
-              %td.px-4.py-2.font-mono= gem_report.latest_version.presence || '-'
-              %td.px-4.py-2
-                = render 'repositories/version_diff_label', gem_report: gem_report
-              %td.px-4.py-2
-                - if gem_report.changelog_url.present?
-                  = link_to 'Changelog', gem_report.changelog_url, target: '_blank', class: 'text-blue-600 hover:underline mr-2'
-                - if gem_report.source_code_url.present?
-                  = link_to 'Source', gem_report.source_code_url, target: '_blank', class: 'text-blue-600 hover:underline'
-    - else
-      %p.text-gray-500 まだ解析されていません。
+  - else
+    - if @repository.current_rails_version.present?
+      %section.mb-8.p-4.bg-gray-50.rounded-lg
+        %h2.text-xl.font-semibold.mb-2 Rails バージョン
+        %p.font-mono= @repository.current_rails_version
+
+    %section
+      %h2.text-xl.font-semibold.mb-4 Gem差分一覧
+
+      - if @repository.gem_reports.any?
+        %table.w-full.border-collapse
+          %thead.bg-gray-100
+            %tr
+              %th.px-4.py-2.text-left gem名
+              %th.px-4.py-2.text-left 現バージョン
+              %th.px-4.py-2.text-left 最新バージョン
+              %th.px-4.py-2.text-left 差分
+              %th.px-4.py-2.text-left リンク
+          %tbody
+            - @repository.gem_reports.default_order.each do |gem_report|
+              %tr.border-b
+                %td.px-4.py-2.font-mono
+                  = link_to gem_report.name, [@repository, gem_report], class: 'text-blue-600 hover:underline'
+                %td.px-4.py-2.font-mono= gem_report.current_version
+                %td.px-4.py-2.font-mono= gem_report.latest_version.presence || '-'
+                %td.px-4.py-2
+                  = render 'repositories/version_diff_label', gem_report: gem_report
+                %td.px-4.py-2
+                  - if gem_report.changelog_url.present?
+                    = link_to 'Changelog', gem_report.changelog_url, target: '_blank', class: 'text-blue-600 hover:underline mr-2'
+                  - if gem_report.source_code_url.present?
+                    = link_to 'Source', gem_report.source_code_url, target: '_blank', class: 'text-blue-600 hover:underline'
+      - else
+        %p.text-gray-500 まだ解析されていません。
 
   .mt-8
     = link_to '← 新しい解析', new_repository_path, class: 'text-blue-600 hover:underline mr-4'

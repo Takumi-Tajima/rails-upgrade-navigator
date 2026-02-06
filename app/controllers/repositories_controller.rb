@@ -13,10 +13,10 @@ class RepositoriesController < ApplicationController
 
   def create
     @repository = Repository.find_or_initialize_by(url: repository_params[:url])
-    @repository.analyze
-    redirect_to @repository, notice: '解析が完了しました'
-  rescue GemfileLockNotFoundError, InvalidRepositoryError => e
-    @repository.errors.add(:base, e.message)
+    @repository.save!
+    RepositoryAnalyzeJob.perform_later(@repository)
+    redirect_to @repository, notice: '解析を開始しました'
+  rescue ActiveRecord::RecordInvalid
     render :new, status: :unprocessable_content
   end
 

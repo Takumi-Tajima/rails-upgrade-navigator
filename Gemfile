@@ -6,6 +6,7 @@ gem 'anthropic'
 gem 'bootsnap', require: false
 gem 'cssbundling-rails'
 gem 'enumerize'
+gem 'good_job'
 gem 'haml-rails'
 gem 'image_processing'
 gem 'jbuilder'

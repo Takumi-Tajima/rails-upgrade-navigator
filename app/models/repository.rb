@@ -1,5 +1,9 @@
 class Repository < ApplicationRecord
+  extend Enumerize
+
   has_many :gem_reports, dependent: :destroy
+
+  enumerize :status, in: { pending: 0, analyzing: 1, completed: 2, failed: 3 }, default: :pending, scope: true
 
   attribute :target_rails_version, default: ''
   attribute :ai_analysis, default: ''
@@ -31,6 +35,8 @@ class Repository < ApplicationRecord
   end
 
   def analyze
+    update!(status: :analyzing)
+
     content = fetch_gemfile_lock
     gems = parse_gemfile_lock(content)
 
@@ -58,7 +64,11 @@ class Repository < ApplicationRecord
     end
 
     self.analyzed_at = Time.current
+    self.status = :completed
     save!
+  rescue StandardError => e
+    update!(status: :failed)
+    raise e
   end
 
   private
