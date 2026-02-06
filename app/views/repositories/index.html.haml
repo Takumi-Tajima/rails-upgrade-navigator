@@ -17,11 +17,11 @@
             %td.px-4.py-2.font-mono= repository.current_rails_version.presence || '-'
             %td.px-4.py-2= repository.analyzed_at ? l(repository.analyzed_at, format: :short) : '-'
             %td.px-4.py-2
-              %span.text-red-600= repository.gem_reports.major.count
+              %span.text-red-600= repository.gem_reports.with_version_diff_type(:major).count
               \/
-              %span.text-yellow-600= repository.gem_reports.minor.count
+              %span.text-yellow-600= repository.gem_reports.with_version_diff_type(:minor).count
               \/
-              %span.text-blue-600= repository.gem_reports.patch.count
+              %span.text-blue-600= repository.gem_reports.with_version_diff_type(:patch).count
   - else
     %p.text-gray-600 まだ解析履歴がありません。
 

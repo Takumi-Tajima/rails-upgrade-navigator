@@ -4,7 +4,7 @@ class RepositoriesController < ApplicationController
   end
 
   def show
-    @repository = Repository.find(params.except(:id))
+    @repository = Repository.find(params[:id])
   end
 
   def new
@@ -12,12 +12,12 @@ class RepositoriesController < ApplicationController
   end
 
   def create
-    @repository = Repository.new(repository_params)
-    if @repository.save
-      redirect_to @repository, notice: '保存しました'
-    else
-      render :new, status: :unprocessable_content
-    end
+    @repository = Repository.find_or_initialize_by(url: repository_params[:url])
+    @repository.analyze
+    redirect_to @repository, notice: '解析が完了しました'
+  rescue GemfileLockNotFoundError, InvalidRepositoryError => e
+    @repository.errors.add(:base, e.message)
+    render :new, status: :unprocessable_content
   end
 
   private

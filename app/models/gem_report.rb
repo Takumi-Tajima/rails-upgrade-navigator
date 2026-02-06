@@ -6,7 +6,7 @@ class GemReport < ApplicationRecord
   validates :name, presence: true
   validates :current_version, presence: true
 
-  enumerize :version_diff_type, in: %i[unknown up_to_date patch minor major]
+  enumerize :version_diff_type, in: { unknown: 0, up_to_date: 1, patch: 2, minor: 3, major: 4 }, default: :unknown, scope: true
 
   attribute :latest_version, default: ''
   attribute :changelog_url, default: ''
@@ -14,4 +14,22 @@ class GemReport < ApplicationRecord
   attribute :homepage_url, default: ''
 
   scope :default_order, -> { order(version_diff_type: :desc) }
+
+  def calculate_version_diff
+    return :unknown if latest_version.blank?
+    return :up_to_date if current_version == latest_version
+
+    current = Gem::Version.new(current_version)
+    latest = Gem::Version.new(latest_version)
+
+    if current.segments[0] != latest.segments[0]
+      :major
+    elsif current.segments[1] != latest.segments[1]
+      :minor
+    else
+      :patch
+    end
+  rescue ArgumentError
+    :unknown
+  end
 end
