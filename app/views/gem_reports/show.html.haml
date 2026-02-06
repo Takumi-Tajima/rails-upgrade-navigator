@@ -1,0 +1,41 @@
+%main.container.mx-auto.px-4.py-8.max-w-4xl
+  %header.mb-8
+    = link_to @repository.name, @repository, class: 'text-blue-600 hover:underline text-sm'
+    %h1.text-3xl.font-bold.mt-2= @gem_report.name
+    .flex.items-center.gap-4.mt-2
+      %span.font-mono.text-lg
+        = @gem_report.current_version
+        %span.text-gray-500 →
+        = @gem_report.latest_version.presence || '-'
+      = render 'repositories/version_diff_label', gem_report: @gem_report
+
+  %section.mb-8
+    %h2.text-xl.font-semibold.mb-4 AI分析
+    - if @gem_report.ai_analyzed?
+      .prose.max-w-none.bg-gray-50.p-4.rounded-lg
+        = markdown(@gem_report.ai_analysis)
+      .mt-4
+        = button_to '再分析する', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600'
+    - elsif @gem_report.version_diff_type.major?
+      - if @gem_report.changelog_url.present?
+        = button_to 'AI分析を実行', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+      - else
+        %p.text-gray-500 Changelog URLがないため分析できません
+    - else
+      %p.text-gray-500 AI分析はメジャーアップデートのgemのみ対象です
+
+  %section.mb-8
+    %h2.text-xl.font-semibold.mb-4 リンク
+    %ul.space-y-2
+      - if @gem_report.changelog_url.present?
+        %li
+          = link_to 'Changelog', @gem_report.changelog_url, target: '_blank', class: 'text-blue-600 hover:underline'
+      - if @gem_report.source_code_url.present?
+        %li
+          = link_to 'Source Code', @gem_report.source_code_url, target: '_blank', class: 'text-blue-600 hover:underline'
+      - if @gem_report.homepage_url.present?
+        %li
+          = link_to 'Homepage', @gem_report.homepage_url, target: '_blank', class: 'text-blue-600 hover:underline'
+
+  .mt-8
+    = link_to '← gem一覧に戻る', @repository, class: 'text-blue-600 hover:underline'

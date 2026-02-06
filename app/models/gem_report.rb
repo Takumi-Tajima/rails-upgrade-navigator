@@ -32,4 +32,13 @@ class GemReport < ApplicationRecord
   rescue ArgumentError
     :unknown
   end
+
+  def analyze_with_ai
+    result = ChangelogAnalyzer.analyze(self)
+    update!(ai_analysis: result)
+  end
+
+  def ai_analyzed?
+    ai_analysis.present?
+  end
 end

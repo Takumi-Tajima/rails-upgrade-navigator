@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '~> 8.1.2'
 
+gem 'anthropic'
 gem 'bootsnap', require: false
 gem 'cssbundling-rails'
 gem 'enumerize'
@@ -13,6 +14,7 @@ gem 'octokit'
 gem 'pg'
 gem 'propshaft'
 gem 'puma'
+gem 'redcarpet'
 gem 'stimulus-rails'
 gem 'turbo-rails'
 

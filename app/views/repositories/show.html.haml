@@ -27,7 +27,8 @@
         %tbody
           - @repository.gem_reports.default_order.each do |gem_report|
             %tr.border-b
-              %td.px-4.py-2.font-mono= gem_report.name
+              %td.px-4.py-2.font-mono
+                = link_to gem_report.name, [@repository, gem_report], class: 'text-blue-600 hover:underline'
               %td.px-4.py-2.font-mono= gem_report.current_version
               %td.px-4.py-2.font-mono= gem_report.latest_version.presence || '-'
               %td.px-4.py-2
