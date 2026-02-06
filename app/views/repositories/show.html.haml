@@ -61,7 +61,10 @@
               - @repository.gem_reports.default_order.each do |gem_report|
                 %tr.border-b.hover:bg-gray-50.transition-colors
                   %td.px-4.py-3
-                    = link_to gem_report.name, [@repository, gem_report], class: 'text-blue-600 hover:underline font-medium'
+                    .flex.items-center.gap-2
+                      = link_to gem_report.name, [@repository, gem_report], class: 'text-blue-600 hover:underline font-medium'
+                      - if gem_report.ai_analyzed?
+                        %span.inline-flex.items-center.px-1.5.py-0.5.rounded.text-xs.font-medium.bg-purple-100.text-purple-800 解析あり
                   %td.px-4.py-3.font-mono.text-sm= gem_report.current_version
                   %td.px-4.py-3.font-mono.text-sm= gem_report.latest_version.presence || '-'
                   %td.px-4.py-3
