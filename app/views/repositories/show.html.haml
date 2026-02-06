@@ -1,0 +1,45 @@
+%main.container.mx-auto.px-4.py-8.max-w-6xl
+  %header.mb-8
+    %h1.text-3xl.font-bold.mb-2= @repository.name
+    %p.text-gray-600
+      = link_to @repository.url, @repository.url, target: '_blank', class: 'text-blue-600 hover:underline'
+    - if @repository.analyzed_at.present?
+      %p.text-sm.text-gray-500.mt-2
+        解析日時: #{l(@repository.analyzed_at, format: :long)}
+
+  - if @repository.current_rails_version.present?
+    %section.mb-8.p-4.bg-gray-50.rounded-lg
+      %h2.text-xl.font-semibold.mb-2 Rails バージョン
+      %p.font-mono= @repository.current_rails_version
+
+  %section
+    %h2.text-xl.font-semibold.mb-4 Gem差分一覧
+
+    - if @repository.gem_reports.any?
+      %table.w-full.border-collapse
+        %thead.bg-gray-100
+          %tr
+            %th.px-4.py-2.text-left gem名
+            %th.px-4.py-2.text-left 現バージョン
+            %th.px-4.py-2.text-left 最新バージョン
+            %th.px-4.py-2.text-left 差分
+            %th.px-4.py-2.text-left リンク
+        %tbody
+          - @repository.gem_reports.default_order.each do |gem_report|
+            %tr.border-b
+              %td.px-4.py-2.font-mono= gem_report.name
+              %td.px-4.py-2.font-mono= gem_report.current_version
+              %td.px-4.py-2.font-mono= gem_report.latest_version.presence || '-'
+              %td.px-4.py-2
+                = render 'repositories/version_diff_label', gem_report: gem_report
+              %td.px-4.py-2
+                - if gem_report.changelog_url.present?
+                  = link_to 'Changelog', gem_report.changelog_url, target: '_blank', class: 'text-blue-600 hover:underline mr-2'
+                - if gem_report.source_code_url.present?
+                  = link_to 'Source', gem_report.source_code_url, target: '_blank', class: 'text-blue-600 hover:underline'
+    - else
+      %p.text-gray-500 まだ解析されていません。
+
+  .mt-8
+    = link_to '← 新しい解析', new_repository_path, class: 'text-blue-600 hover:underline mr-4'
+    = link_to '解析履歴', repositories_path, class: 'text-blue-600 hover:underline'

@@ -1,0 +1,11 @@
+- case gem_report.version_diff_type.to_s
+- when 'major'
+  %span.px-2.py-1.text-sm.rounded.bg-red-100.text-red-800 メジャー
+- when 'minor'
+  %span.px-2.py-1.text-sm.rounded.bg-yellow-100.text-yellow-800 マイナー
+- when 'patch'
+  %span.px-2.py-1.text-sm.rounded.bg-blue-100.text-blue-800 パッチ
+- when 'up_to_date'
+  %span.px-2.py-1.text-sm.rounded.bg-green-100.text-green-800 最新
+- else
+  %span.px-2.py-1.text-sm.rounded.bg-gray-100.text-gray-800 不明

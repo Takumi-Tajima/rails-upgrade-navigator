@@ -1,0 +1,17 @@
+ja:
+  time:
+    formats:
+      long: "%Y年%m月%d日 %H:%M"
+      short: "%m/%d %H:%M"
+  activerecord:
+    models:
+      repository: リポジトリ
+      gem_report: Gemレポート
+    attributes:
+      repository:
+        url: URL
+        name: リポジトリ名
+      gem_report:
+        name: gem名
+        current_version: 現バージョン
+        latest_version: 最新バージョン

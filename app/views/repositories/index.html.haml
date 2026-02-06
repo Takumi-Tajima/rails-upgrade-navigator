@@ -1,0 +1,29 @@
+%main.container.mx-auto.px-4.py-8.max-w-4xl
+  %h1.text-3xl.font-bold.mb-6 解析履歴
+
+  - if @repositories.any?
+    %table.w-full.border-collapse
+      %thead.bg-gray-100
+        %tr
+          %th.px-4.py-2.text-left リポジトリ
+          %th.px-4.py-2.text-left Railsバージョン
+          %th.px-4.py-2.text-left 解析日時
+          %th.px-4.py-2.text-left 差分数
+      %tbody
+        - @repositories.each do |repository|
+          %tr.border-b.hover:bg-gray-50
+            %td.px-4.py-2
+              = link_to repository.name, repository, class: 'text-blue-600 hover:underline'
+            %td.px-4.py-2.font-mono= repository.current_rails_version.presence || '-'
+            %td.px-4.py-2= repository.analyzed_at ? l(repository.analyzed_at, format: :short) : '-'
+            %td.px-4.py-2
+              %span.text-red-600= repository.gem_reports.major.count
+              \/
+              %span.text-yellow-600= repository.gem_reports.minor.count
+              \/
+              %span.text-blue-600= repository.gem_reports.patch.count
+  - else
+    %p.text-gray-600 まだ解析履歴がありません。
+
+  .mt-8
+    = link_to '← 新しい解析', new_repository_path, class: 'text-blue-600 hover:underline'

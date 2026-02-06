@@ -4,10 +4,12 @@ gem 'rails', '~> 8.1.2'
 
 gem 'bootsnap', require: false
 gem 'cssbundling-rails'
+gem 'enumerize'
 gem 'haml-rails'
 gem 'image_processing'
 gem 'jbuilder'
 gem 'jsbundling-rails'
+gem 'octokit'
 gem 'pg'
 gem 'propshaft'
 gem 'puma'
@@ -19,6 +21,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'haml_lint'
   gem 'html2haml'
   gem 'web-console'
 end
