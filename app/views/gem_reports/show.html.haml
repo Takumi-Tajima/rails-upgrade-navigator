@@ -1,41 +1,63 @@
 %main.container.mx-auto.px-4.py-8.max-w-4xl
-  %header.mb-8
-    = link_to @repository.name, @repository, class: 'text-blue-600 hover:underline text-sm'
-    %h1.text-3xl.font-bold.mt-2= @gem_report.name
-    .flex.items-center.gap-4.mt-2
-      %span.font-mono.text-lg
-        = @gem_report.current_version
-        %span.text-gray-500 →
-        = @gem_report.latest_version.presence || '-'
-      = render 'repositories/version_diff_label', gem_report: @gem_report
+  .bg-white.rounded-lg.shadow-sm.p-6.mb-6
+    %header
+      = link_to "← #{@repository.name} に戻る", @repository, class: 'text-blue-600 hover:underline text-sm inline-flex items-center gap-1'
+      %h2.text-2xl.font-bold.mt-3= @gem_report.name
+      .flex.items-center.gap-4.mt-3
+        .flex.items-center.gap-2
+          %span.font-mono.text-lg.bg-gray-100.px-3.py-1.rounded= @gem_report.current_version
+          %span.text-gray-400 →
+          %span.font-mono.text-lg.bg-gray-100.px-3.py-1.rounded= @gem_report.latest_version.presence || '-'
+        = render 'repositories/version_diff_label', gem_report: @gem_report
 
-  %section.mb-8
-    %h2.text-xl.font-semibold.mb-4 AI分析
-    - if @gem_report.ai_analyzed?
-      .prose.max-w-none.bg-gray-50.p-4.rounded-lg
+  .bg-white.rounded-lg.shadow-sm.p-6.mb-6
+    %h3.text-lg.font-semibold.mb-4 AI分析
+    - if @gem_report.ai_analyzing?
+      .bg-blue-50.p-6.rounded-lg{ data: { controller: 'reload', reload_interval_value: 3000 } }
+        %h4.text-base.font-semibold.text-blue-800.mb-2 分析中...
+        %p.text-blue-600.text-sm Changelogを分析しています。しばらくお待ちください。
+        .mt-4
+          .animate-pulse.flex.space-x-4
+            .h-2.bg-blue-400.rounded.w-full
+
+    - elsif @gem_report.ai_status.failed?
+      .bg-red-50.p-6.rounded-lg
+        %h4.text-base.font-semibold.text-red-800.mb-2 分析に失敗しました
+        %p.text-red-600.text-sm AI分析中にエラーが発生しました。
+        .mt-4
+          = button_to '再分析する', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium'
+
+    - elsif @gem_report.ai_analyzed?
+      .prose.max-w-none.bg-gray-50.p-6.rounded-lg
         = markdown(@gem_report.ai_analysis)
       .mt-4
-        = button_to '再分析する', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600'
+        = button_to '再分析する', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm font-medium'
+
     - elsif @gem_report.version_diff_type.major?
       - if @gem_report.changelog_url.present?
-        = button_to 'AI分析を実行', [@repository, @gem_report], method: :patch, class: 'px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700'
+        .bg-gray-50.p-6.rounded-lg.text-center
+          %p.text-gray-600.mb-4 Changelogを分析して、破壊的変更や注意点をまとめます。
+          = button_to 'AI分析を実行', [@repository, @gem_report], method: :patch, class: 'px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium'
       - else
-        %p.text-gray-500 Changelog URLがないため分析できません
+        .bg-gray-50.p-6.rounded-lg.text-center
+          %p.text-gray-500 Changelog URLがないため分析できません
+
     - else
-      %p.text-gray-500 AI分析はメジャーアップデートのgemのみ対象です
+      .bg-gray-50.p-6.rounded-lg.text-center
+        %p.text-gray-500 AI分析はメジャーアップデートのgemのみ対象です
 
-  %section.mb-8
-    %h2.text-xl.font-semibold.mb-4 リンク
-    %ul.space-y-2
-      - if @gem_report.changelog_url.present?
-        %li
-          = link_to 'Changelog', @gem_report.changelog_url, target: '_blank', class: 'text-blue-600 hover:underline'
-      - if @gem_report.source_code_url.present?
-        %li
-          = link_to 'Source Code', @gem_report.source_code_url, target: '_blank', class: 'text-blue-600 hover:underline'
-      - if @gem_report.homepage_url.present?
-        %li
-          = link_to 'Homepage', @gem_report.homepage_url, target: '_blank', class: 'text-blue-600 hover:underline'
-
-  .mt-8
-    = link_to '← gem一覧に戻る', @repository, class: 'text-blue-600 hover:underline'
+  .bg-white.rounded-lg.shadow-sm.p-6
+    %h3.text-lg.font-semibold.mb-4 外部リンク
+    - if @gem_report.changelog_url.present? || @gem_report.source_code_url.present? || @gem_report.homepage_url.present?
+      .flex.flex-wrap.gap-3
+        - if @gem_report.changelog_url.present?
+          = link_to @gem_report.changelog_url, target: '_blank', class: 'inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm text-gray-700' do
+            Changelog
+        - if @gem_report.source_code_url.present?
+          = link_to @gem_report.source_code_url, target: '_blank', class: 'inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm text-gray-700' do
+            Source Code
+        - if @gem_report.homepage_url.present?
+          = link_to @gem_report.homepage_url, target: '_blank', class: 'inline-flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm text-gray-700' do
+            Homepage
+    - else
+      %p.text-gray-500.text-sm 外部リンクはありません

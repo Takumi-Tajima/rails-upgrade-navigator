@@ -1,29 +1,45 @@
-%main.container.mx-auto.px-4.py-8.max-w-4xl
-  %h1.text-3xl.font-bold.mb-6 解析履歴
+%main.container.mx-auto.px-4.py-8.max-w-5xl
+  .bg-white.rounded-lg.shadow-sm.p-6
+    %h2.text-2xl.font-bold.mb-6 解析履歴
 
-  - if @repositories.any?
-    %table.w-full.border-collapse
-      %thead.bg-gray-100
-        %tr
-          %th.px-4.py-2.text-left リポジトリ
-          %th.px-4.py-2.text-left Railsバージョン
-          %th.px-4.py-2.text-left 解析日時
-          %th.px-4.py-2.text-left 差分数
-      %tbody
-        - @repositories.each do |repository|
-          %tr.border-b.hover:bg-gray-50
-            %td.px-4.py-2
-              = link_to repository.name, repository, class: 'text-blue-600 hover:underline'
-            %td.px-4.py-2.font-mono= repository.current_rails_version.presence || '-'
-            %td.px-4.py-2= repository.analyzed_at ? l(repository.analyzed_at, format: :short) : '-'
-            %td.px-4.py-2
-              %span.text-red-600= repository.gem_reports.with_version_diff_type(:major).count
-              \/
-              %span.text-yellow-600= repository.gem_reports.with_version_diff_type(:minor).count
-              \/
-              %span.text-blue-600= repository.gem_reports.with_version_diff_type(:patch).count
-  - else
-    %p.text-gray-600 まだ解析履歴がありません。
-
-  .mt-8
-    = link_to '← 新しい解析', new_repository_path, class: 'text-blue-600 hover:underline'
+    - if @repositories.any?
+      .overflow-x-auto
+        %table.w-full.border-collapse
+          %thead
+            %tr.border-b-2.border-gray-200
+              %th.px-4.py-3.text-left.text-sm.font-semibold.text-gray-600 リポジトリ
+              %th.px-4.py-3.text-left.text-sm.font-semibold.text-gray-600 Railsバージョン
+              %th.px-4.py-3.text-left.text-sm.font-semibold.text-gray-600 解析日時
+              %th.px-4.py-3.text-left.text-sm.font-semibold.text-gray-600 差分数
+              %th.px-4.py-3.text-left.text-sm.font-semibold.text-gray-600 ステータス
+          %tbody
+            - @repositories.each do |repository|
+              %tr.border-b.hover:bg-gray-50.transition-colors
+                %td.px-4.py-3
+                  = link_to repository.name, repository, class: 'text-blue-600 hover:underline font-medium'
+                %td.px-4.py-3.font-mono.text-sm= repository.current_rails_version.presence || '-'
+                %td.px-4.py-3.text-sm.text-gray-600= repository.analyzed_at ? l(repository.analyzed_at, format: :short) : '-'
+                %td.px-4.py-3
+                  .flex.items-center.gap-2.text-sm
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800
+                      = repository.gem_reports.with_version_diff_type(:major).count
+                      major
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-yellow-100.text-yellow-800
+                      = repository.gem_reports.with_version_diff_type(:minor).count
+                      minor
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-blue-100.text-blue-800
+                      = repository.gem_reports.with_version_diff_type(:patch).count
+                      patch
+                %td.px-4.py-3
+                  - if repository.status.completed?
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-green-100.text-green-800 完了
+                  - elsif repository.status.analyzing?
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-blue-100.text-blue-800 解析中
+                  - elsif repository.status.failed?
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-red-100.text-red-800 失敗
+                  - else
+                    %span.inline-flex.items-center.px-2.py-0.5.rounded.text-xs.font-medium.bg-gray-100.text-gray-800 待機中
+    - else
+      .text-center.py-12
+        %p.text-gray-500 まだ解析履歴がありません。
+        = link_to '新規解析を始める', new_repository_path, class: 'inline-block mt-4 text-blue-600 hover:underline'

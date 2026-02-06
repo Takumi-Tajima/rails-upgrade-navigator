@@ -6,7 +6,7 @@ class GemReportsController < ApplicationController
 
   def update
     @gem_report = GemReport.find(params[:id])
-    @gem_report.analyze_with_ai
-    redirect_to [Repository.find(params[:repository_id]), @gem_report], notice: 'AI分析が完了しました'
+    GemReportAnalyzeJob.perform_later(@gem_report)
+    redirect_to [Repository.find(params[:repository_id]), @gem_report], notice: 'AI分析を開始しました'
   end
 end

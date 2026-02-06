@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_06_061526) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_06_065040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "gem_reports", force: :cascade do |t|
     t.text "ai_analysis", default: "", null: false
+    t.integer "ai_status", default: 0, null: false
     t.string "changelog_url", null: false
     t.datetime "created_at", null: false
     t.string "current_version", null: false

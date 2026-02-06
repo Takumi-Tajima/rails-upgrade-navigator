@@ -7,6 +7,7 @@ class GemReport < ApplicationRecord
   validates :current_version, presence: true
 
   enumerize :version_diff_type, in: { unknown: 0, up_to_date: 1, patch: 2, minor: 3, major: 4 }, default: :unknown, scope: true
+  enumerize :ai_status, in: { pending: 0, analyzing: 1, completed: 2, failed: 3 }, default: :pending, scope: true
 
   attribute :latest_version, default: ''
   attribute :changelog_url, default: ''
@@ -34,11 +35,19 @@ class GemReport < ApplicationRecord
   end
 
   def analyze_with_ai
+    update!(ai_status: :analyzing)
     result = ChangelogAnalyzer.analyze(self)
-    update!(ai_analysis: result)
+    update!(ai_analysis: result, ai_status: :completed)
+  rescue StandardError => e
+    update!(ai_status: :failed)
+    raise e
   end
 
   def ai_analyzed?
-    ai_analysis.present?
+    ai_status.completed?
+  end
+
+  def ai_analyzing?
+    ai_status.analyzing?
   end
 end
