@@ -1,0 +1,19 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: rails_upgrade_navigator_development
+
+test:
+  <<: *default
+  database: rails_upgrade_navigator_test
+
+production:
+  <<: *default
+  database: sg_app_rails_upgrade_navi
+  username: sg_app_rails_upgrade_navi
+  host: <%= Rails.application.credentials.dig(:kamaly, :db, :host)%>
+  password: <%= Rails.application.credentials.dig(:kamaly, :db, :pass) %>
